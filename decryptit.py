@@ -104,8 +104,7 @@ def play():
 Welcome to Decrypt It!
 This game improves your cryptographic and pattern recognition skills.
 You will be given a message "encrypted" in a simple "cipher".
-
-##maybe put ciphers??
+The "ciphers" are: Caesar Shift, Ascii Shift, Scramble (whole or by-word), and reverse.
 
 Your task is to decrypt the message, case sensitive.
 All messages are grammatically correct and they all make sense. Most of them have valid words; some don't.
@@ -117,8 +116,6 @@ Enter a blank line to skip.
 Note: Most messages end and begin with a non-space character. Spaces at the end and beginning of your submission will be ignored.
 
 Enter '{toquit}' to quit.
-
-#put h for hints
 
 Good luck!
         
