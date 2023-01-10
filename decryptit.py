@@ -14,7 +14,6 @@ quotes = [x.strip() for x in quotes]
 from random import *
 # Van Rossum, G. (2020). The Python Library Reference, release 3.8.2. Python Software Foundation.
 
-
 def count_diff(txta,txtb):
     '''Counts the number of chars different between txta and txtb
     strips both strings
