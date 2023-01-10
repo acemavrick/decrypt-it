@@ -6,3 +6,5 @@ Every message correct is +1 point. Every incorrect is -1 point. Every skipped is
 Enter a blank line to skip.
 Enter 'qx' to quit.
 Good luck!
+
+_Made for the 2022 CSP Performance Task._
