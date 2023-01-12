@@ -115,7 +115,7 @@ Welcome to Decrypt It!
 This game improves your cryptographic and pattern recognition skills.
 You will be given a message "encrypted" in a simple "cipher".
 The "ciphers" are: {' '.join([fttext(x).capitalize() for x in ciphers])}.
-{input()}
+
 Your task is to decrypt the message, case sensitive.
 All messages are grammatically correct and they all make sense. Most of them have valid words; some don't.
 
@@ -129,8 +129,8 @@ You are given use of commands to help you decrypt the message (parameters are se
     '-hint' for a hint
     '-help' for help
     '-q' to quit
-    '-ascii num' to use ascii shift
-    '-caesar num' to use caesar shift
+    '-a num' to use ascii shift
+    '-c num' to use caesar shift
     '-reverse' to reverse
     
 
@@ -170,9 +170,8 @@ Good luck!
                             case 'e':
                                 print(instructions)
                             case 'i':
-                                l = randint(0,len(fttxt(method))-3)
-                                u = randint(l,len(fttxt(method))-1)
-                                print(fttxt(method)[l:u])
+                                l = randint(0,len(fttext(method))-5)
+                                print(fttext(method)[l:l+4])
                     case 'r':
                         print(reverse(encrypted))
                         
