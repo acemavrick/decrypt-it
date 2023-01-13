@@ -3,6 +3,8 @@
 # user has to recognize patterns and decrypt it
 # decrypted message always makes sense
 
+# need to format
+
 # get the quotes
 with open('quotes.txt') as qfile:
     quotes = qfile.readlines()
@@ -14,7 +16,8 @@ quotes = [x.strip() for x in quotes]
 from random import *
 # Van Rossum, G. (2020). The Python Library Reference, release 3.8.2. Python Software Foundation.
 
-### Ciphers ###
+
+### Begin Ciphers ###
 
 # ascii shift
 def ascii_shift(txt,n = None):
@@ -104,7 +107,7 @@ def fttext(func):
     else:
         return rawf[rawf.find('n ')+2:rawf.find(' at')]
 
-
+# main function
 def play():
     # no scramble bc it's too hard
     ciphers = [ascii_shift, caesar_shift, reverse, scramble_by_word]
@@ -126,12 +129,12 @@ You have an infinite number of attempts. However, each attempt will be scored.
 Enter a blank line to skip.
 
 You are given use of commands to help you decrypt the message (parameters are seperated by spaces):
-    '-hint' for a hint
-    '-help' for help
+    '-i' for a hint
+    '-e' for help
     '-q' to quit
     '-a num' to use ascii shift
     '-c num' to use caesar shift
-    '-reverse' to reverse
+    '-p' to reprint the prompt 
     
 
 Note: Most messages end and begin with a non-space character. Spaces at the end and beginning of your submission will be ignored.
@@ -151,38 +154,48 @@ Good luck!
         encrypted = method(message, randint(-300,300))
         while message == encrypted:
             encrypted = method(message)
-        print()
-        print('You have',pts,'point(s).')
-        print(f'{numtime}: |-|{encrypted}|-|')
+        prompt = f'You have {pts} point(s).\n{numtime}: |-|{encrypted}|-|'
+        print(prompt)
         tries = 0
         
         while True:
             tries += 1
             # each round
             attempt = input('>: ').strip()
-            print()
+            
+            if attempt == '':
+                print('Skipped. -1 point.')
+                print(f'The message was "{message}".')
+                pts -= 1
+                break
+            
             if attempt[0] == '-': #is a command
                 match attempt[1]:
+                    case 'p':
+                        print(prompt)
                     case 'q':
                         break
-                    case 'h':
-                        match attempt[2]:
-                            case 'e':
-                                print(instructions)
-                            case 'i':
-                                l = randint(0,len(fttext(method))-5)
-                                print(fttext(method)[l:l+4])
-                    case 'r':
-                        print(reverse(encrypted))
+                    case 'e':
+                        print('\n'.join(instructions.split('\n')[7:-2]))
+                    case 'i':
+                        l = randint(0,len(fttext(method))-5)
+                        print(fttext(method)[l:l+4])
                         
                     case 'a' | 'c':
-                        cmd, num = attempt[1:].split(' ')
-                        num = int(num)
+                        try:
+                            cmd, num = attempt[1:].split(' ')
+                            num = int(num)
+                        except ValueError():
+                            print('Error. Please enter an integer to shift.')
+                            continue
+                        
                         match cmd[0]:
                             case 'a':
                                 print(ascii_shift(encrypted,num))
                             case 'c':
                                 print(caesar_shift(encrypted,num))
+                    case _:
+                        print('Invalid command')
                 continue
                         
             if message == attempt:
@@ -190,11 +203,7 @@ Good luck!
                 pts += 1
                 break
 
-            if attempt == '':
-                print('Skipped. -1 point.')
-                print(f'The message was "{message}".')
-                pts -= 1
-                break
+            
 
             print('Incorrect. 0pts.')
 
@@ -204,6 +213,5 @@ Good luck!
         if attempt == toquit:
             print('Thank you for playing! You got',pts,'points.')
             break
-        print()
         
 play()
