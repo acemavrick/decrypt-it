@@ -185,7 +185,7 @@ Good luck!
                         try:
                             cmd, num = attempt[1:].split(' ')
                             num = int(num)
-                        except ValueError():
+                        except ValueError:
                             print('Error. Please enter an integer to shift.')
                             continue
                         
