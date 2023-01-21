@@ -110,8 +110,13 @@ def fttext(func):
 # main function
 def play():
     # no scramble bc it's too hard
+    # list of ciphers
     ciphers = [ascii_shift, caesar_shift, reverse, scramble_by_word]
+    # scoring dictionary
+    scoring = {'cor': 5, 'inc': -2, 'ski': -4, 'cmd': -.1}
     toquit = '-q'
+    # because of commands, incorrect submissions are penalized (or else too easy)
+    # also, commands cost .1 point
     instructions = \
         f'''
 Welcome to Decrypt It!
@@ -123,93 +128,181 @@ Your task is to decrypt the message, case sensitive.
 All messages are grammatically correct and they all make sense. Most of them have valid words; some don't.
 
 You have an infinite number of attempts. However, each attempt will be scored.
-    Every correct submission is +1 point.
-    Every incorrect submission is 0 points.
-    Every skipped submission is -1 points.'
+    Every correct submission is {scoring['cor']} points.
+    Every incorrect submission is {scoring['inc']} points.
+    Every skipped submission is {scoring['ski']} points.
+    Every time a helper command is used (successfully) is {scoring['cmd']} points.
 Enter a blank line to skip.
 
 You are given use of commands to help you decrypt the message (parameters are seperated by spaces):
-    '-i' for a hint
-    '-e' for help
-    '-q' to quit
-    '-a num' to use ascii shift
-    '-c num' to use caesar shift
-    '-p' to reprint the prompt 
+    Helper commands (-0.1 points):
+        '-i' for a hint
+        '-a num' to use ascii shift
+        '-c num' to use caesar shift
+    Other (no cost):
+        '-p' to reprint the prompt 
+        '-e' for help
+        '-q' to quit
     
 
-Note: Most messages end and begin with a non-space character. Spaces at the end and beginning of your submission will be ignored.
+Note: Most messages begin and end with a non-space character. Spaces at the end and beginning of your submission will be ignored.
 
 Good luck! 
         '''
+    # store points
     pts = 0
     print(instructions)
     numtime = 0
     while True:
         # main loop
+        # goes on until user quits game (toquit command)
+        
+        # round the points to 4 decimal places
+        pts = round(pts,4)
         numtime += 1
+        
+        # get the message
         message = choice(quotes)
         # remove the quote so no repetition
         quotes.remove(message)
+        # get the cipher to use
         method = choice(ciphers)
+        # initial encryption
         encrypted = method(message, randint(-300,300))
+        # keep encrypting the message if it is the same (e.g. caesar shift by 26 is the same)
         while message == encrypted:
             encrypted = method(message)
-        prompt = f'You have {pts} point(s).\n{numtime}: |-|{encrypted}|-|'
+
+        prompt = f'\nYou have {pts} point(s).\n{numtime}: |-|{encrypted}|-|'
         print(prompt)
+        
         tries = 0
         
         while True:
+            # round loop (for each encryption... until gotten right or quits)
+            
             tries += 1
-            # each round
+            
+            # get attempt
             attempt = input('>: ').strip()
             
+            # if blank (skipped)
             if attempt == '':
-                print('Skipped. -1 point.')
+                print(f'Skipped. {scoring["ski"]} points.')
                 print(f'The message was "{message}".')
-                pts -= 1
-                break
+                pts += scoring['ski']
+                break # exit round
             
             if attempt[0] == '-': #is a command
-                match attempt[1]:
+                # command is structured as:
+                # -[p,q,e,i,a,c] [int]
+                
+                # match the command's 2nd char (the actual letter)
+                match attempt[1]: # match the value after the dash
+                    # no cost
                     case 'p':
+                        # -p
                         print(prompt)
                     case 'q':
+                        # -q
                         break
                     case 'e':
+                        # -e 
+                        # print the scoring guidelines and the command key
                         print('\n'.join(instructions.split('\n')[7:-2]))
-                    case 'i':
-                        l = randint(0,len(fttext(method))-5)
-                        print(fttext(method)[l:l+4])
+                    
+                    # cost
+                    case 'i' | 'a' | 'c':
+                        # the commands in these cases use up points
+                        # run match again
+                        # take of points at end to account for errors
+                        # if a command is not run successfully, points will not be taken off
+                        match attempt[1]:
+                            
+                            case 'i':
+                                # -i
+                                # print 4 letters of the name of the cipher method
+                                l = randint(0,len(fttext(method))-5)
+                                print(fttext(method)[l:l+4])
+                                
+                            case 'a' | 'c':
+                                # -a or -c
+                                # need to get the number
+                                try:
+                                    # try to split by spaces 
+                                    cmd, num = attempt[1:].split(' ')
+                                    # try to integer the number
+                                    num = int(num)
+                                    # if there are not command + number then, instead of raising a ValueError (which would usually happen), tell the user
+                                except ValueError:
+                                    print('Error. Please enter an integer to shift.')
+                                    continue
+                                
+                                match cmd[0]:
+                                    # now we have the integer, classify based on the command
+                                    case 'a':
+                                        # -a _
+                                        # shift it and print it
+                                        print(ascii_shift(encrypted,num))
+                                    case 'c':
+                                        # -c _
+                                        # shift it and print it
+                                        print(caesar_shift(encrypted,num))
+                        # if it reaches here command was successful. Take off points.
+                        print(f'Helper command used: {scoring["cmd"]} points.')
+                        pts += scoring['cmd']
                         
-                    case 'a' | 'c':
-                        try:
-                            cmd, num = attempt[1:].split(' ')
-                            num = int(num)
-                        except ValueError:
-                            print('Error. Please enter an integer to shift.')
-                            continue
-                        
-                        match cmd[0]:
-                            case 'a':
-                                print(ascii_shift(encrypted,num))
-                            case 'c':
-                                print(caesar_shift(encrypted,num))
+                    # bad command
                     case _:
+                        # default case
+                        # if nothing works, print invalid command
                         print('Invalid command')
+                # don't evaluate further than the command, so continue
                 continue
-                        
-            if message == attempt:
-                print('Correct! +1 point.')
-                pts += 1
-                break
-
             
-
-            print('Incorrect. 0pts.')
-
+            ### Scoring ###
+            
+            # the attempt is correct
+            if message == attempt:
+                print(f'Correct! {scoring["cor"]} point.')
+                pts += scoring['cor']
+                break
+            
+            # reaching here means that it is incorrect
+            print(f'Incorrect. {scoring["inc"]}.')
+            pts += scoring['inc']
+            
+            # typo checking.. if it is a typo then suggest it and give back points
+            # typo is when the number of characters wrong is <= num words
+            #  and both are the same length
+            if len(attempt) == len(message):
+                # the messages need to be the same length
+                # if it isn't chances are low that there is a typo
+                # also if it isn't then typo count will be incorrect
+                
+                # get num different
+                numtypos = diff(attempt, message)
+                wordcount = len(message.split(' '))
+                # if too many typos then probably not typos
+                if numtypos > wordcount:
+                    continue
+                
+                # calculate how much to give back for each typo based on wordcount
+                # cannot give back more than points negated for incorrect
+                value = abs(scoring['inc']/wordcount)
+                
+                # inverse proportion
+                givenback = value*wordcount/numtypos
+                givenback = round(givenback, 4) # rounds to be nice
+                pts += givenback
+                print(f'It seems like you have {numtypos} typos, so you will be given back {givenback} points.')
+                continue
+            
+            # every 8 tries, remind that it will make sense
             if tries%8 == 0:
                 print('Remember, it will make sense.')
-                
+        
+        # want to quit
         if attempt == toquit:
             print('Thank you for playing! You got',pts,'points.')
             break
