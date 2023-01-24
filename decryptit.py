@@ -3,8 +3,6 @@
 # user has to recognize patterns and decrypt it
 # decrypted message always makes sense
 
-# need to format
-
 # get the quotes
 with open('quotes.txt') as qfile:
     quotes = qfile.readlines()
@@ -107,16 +105,49 @@ def fttext(func):
     else:
         return rawf[rawf.find('n ')+2:rawf.find(' at')]
 
+def print_help(key):
+    '''prints a key:
+    'ascii': prints ascii chart
+    'alpha': prints alphabet chart'''
+    # this saves space; Would be necessary for two functions if not one
+    match key:
+        case 'ascii':
+            total = list(range(32,127))
+            # build 3 columns of 32
+            table = []
+            for i, princi in enumerate(total[:33]):
+                row = [princi, total[i+32], total[i+62]]
+                nrow = []
+                for x in row:
+                    a = str(x)
+                    if len(a) ==2:
+                        a = ' '+a
+                    nrow.append(f'{a}: "{chr(x)}"')
+                row = nrow.copy()
+                table.append(row)
+            print('Dec: Char \t'*3)
+            # print all rows
+            for row in table:
+                print('\t'.join(row))
+        case 'alpha':
+            # print alphabet used in Caesar shift
+            # case is preserved
+            print("Alphabet (Case doesn't matter) ")
+            print(' '.join([' '+x for x in list('abcdefghijklmnopqrstuvwxyz')]))
+            print(' '.join([(' ' if len(str(x+1)) == 1 else '') + str(x+1) for x in range(26)]))
+        case _:
+            # default case; raise error
+            raise ValueError(f'{key} not in the allowed values "ascii, alpha"')
+            
 # main function
 def play():
     # no scramble bc it's too hard
     # list of ciphers
     ciphers = [ascii_shift, caesar_shift, reverse, scramble_by_word]
     # scoring dictionary
-    scoring = {'cor': 5, 'inc': -2, 'ski': -4, 'cmd': -.1}
+    scoring = {'cor': 5, 'inc': -2, 'ski': -4, 'cmd': -.5}
     toquit = '-q'
     # because of commands, incorrect submissions are penalized (or else too easy)
-    # also, commands cost .1 point
     instructions = \
         f'''
 Welcome to Decrypt It!
@@ -135,14 +166,15 @@ You have an infinite number of attempts. However, each attempt will be scored.
 Enter a blank line to skip.
 
 You are given use of commands to help you decrypt the message (parameters are seperated by spaces):
-    Helper commands (-0.1 points):
-        '-i' for a hint
-        '-a num' to use ascii shift
-        '-c num' to use caesar shift
+    Helper commands (-{scoring['cmd']} points):
+        '-i' for a hInt
+        '-t [a,l]' to print a charT (replace [a,l] with either 'a' or 'l')
+        '-a num' to use Ascii shift
+        '-c num' to use Caesar shift
     Other (no cost):
-        '-p' to reprint the prompt 
-        '-e' for help
-        '-q' to quit
+        '-p' to rePrint the prompt 
+        '-e' for hElp
+        '-q' to Quit
     
 
 Note: Most messages begin and end with a non-space character. Spaces at the end and beginning of your submission will be ignored.
@@ -196,7 +228,8 @@ Good luck!
             if attempt[0] == '-': #is a command
                 # command is structured as:
                 # -[p,q,e,i,a,c] [int]
-                
+                # add 5  spaces to avoid range errors
+                attempt += '     '
                 # match the command's 2nd char (the actual letter)
                 match attempt[1]: # match the value after the dash
                     # no cost
@@ -212,7 +245,7 @@ Good luck!
                         print('\n'.join(instructions.split('\n')[7:-2]))
                     
                     # cost
-                    case 'i' | 'a' | 'c':
+                    case 'i' | 'a' | 'c' | 't':
                         # the commands in these cases use up points
                         # run match again
                         # take of points at end to account for errors
@@ -224,6 +257,25 @@ Good luck!
                                 # print 4 letters of the name of the cipher method
                                 l = randint(0,len(fttext(method))-5)
                                 print(fttext(method)[l:l+4])
+                            
+                            case 't':
+                                # -t [a,l]
+                                # print chart based on the next value
+                                match attempt[3]:
+                                    # 3rd of command
+                                    # e.g. -t a
+                                    #         ^
+                                    case 'l':
+                                        print_help('alpha')
+                                    case 'a':
+                                        print_help('ascii')
+                                    case _:
+                                        # default
+                                        # none match... invalid second letter
+                                        print('Error. Please enter either "a" or "l" after "-t " for Ascii and aLphabet charts, respectively')
+                                        continue
+                                        
+                                        
                                 
                             case 'a' | 'c':
                                 # -a or -c
@@ -307,4 +359,4 @@ Good luck!
             print('Thank you for playing! You got',pts,'points.')
             break
         
-play()
+if __name__ == '__main__': play()
