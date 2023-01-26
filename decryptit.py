@@ -166,7 +166,7 @@ You have an infinite number of attempts. However, each attempt will be scored.
 Enter a blank line to skip.
 
 You are given use of commands to help you decrypt the message (parameters are seperated by spaces):
-    Helper commands (-{scoring['cmd']} points):
+    Helper commands ({scoring['cmd']} points):
         '-i' for a hInt
         '-t [a,l]' to print a charT (replace [a,l] with either 'a' or 'l')
         '-a num' to use Ascii shift
@@ -282,7 +282,8 @@ Good luck!
                                 # need to get the number
                                 try:
                                     # try to split by spaces 
-                                    cmd, num = attempt[1:].split(' ')
+                                    asplit = attempt[1:].split(' ')
+                                    cmd, num = asplit[:2]
                                     # try to integer the number
                                     num = int(num)
                                     # if there are not command + number then, instead of raising a ValueError (which would usually happen), tell the user
@@ -355,7 +356,7 @@ Good luck!
                 print('Remember, it will make sense.')
         
         # want to quit
-        if attempt == toquit:
+        if attempt[:2] == toquit:
             print('Thank you for playing! You got',pts,'points.')
             break
         
