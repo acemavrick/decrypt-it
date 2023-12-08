@@ -11,4 +11,4 @@ You are given use of commands to help you decrypt the message (parameters are se
 Note: Most messages begin and end with a non-space character. Spaces at the end and beginning of your submission will be ignored.
 ```
 
-*_Made for the 2022 CSP Performance Task._*
+*_Made for the 2022-2023 CSP Performance Task._*
